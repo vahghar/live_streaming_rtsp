@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 import subprocess, os, uuid
+from flasgger import swag_from
 
 stream_bp = Blueprint("stream", __name__)
 HLS_DIR = os.path.join("static", "hls")
@@ -7,6 +8,46 @@ HLS_DIR = os.path.join("static", "hls")
 ffmpeg_path = r"C:\Users\Pushpa_Rawat\Downloads\ffmpeg-7.1.1-essentials_build\ffmpeg-7.1.1-essentials_build\bin\ffmpeg.exe"
 
 @stream_bp.route("/convert", methods=["POST"])
+@swag_from({
+    "tags": ["Stream"],
+    "summary": "Convert RTSP stream to HLS",
+    "parameters": [
+        {
+            "name": "body",
+            "in": "body",
+            "required": True,
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "rtsp_url": {
+                        "type": "string",
+                        "example": "rtsp://example.com/stream"
+                    }
+                }
+            }
+        }
+    ],
+    "responses": {
+        200: {
+            "description": "Stream conversion started",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "stream_url": {
+                        "type": "string",
+                        "example": "/static/hls/stream_id/index.m3u8"
+                    }
+                }
+            }
+        },
+        400: {
+            "description": "Missing RTSP URL"
+        },
+        500: {
+            "description": "FFmpeg conversion error"
+        }
+    }
+})
 def convert_rtsp_to_hls():
     data = request.get_json()
     rtsp_url = data.get("rtsp_url")
@@ -26,5 +67,6 @@ def convert_rtsp_to_hls():
         hls_file
     ]
 
-    subprocess.Popen(command)
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print(f"FFmpeg started with PID: {proc.pid}")
     return jsonify({"stream_url": f"/static/hls/{stream_id}/index.m3u8"})
