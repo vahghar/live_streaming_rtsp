@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react"
 import Hls from "hls.js"
 import { Radio } from "lucide-react"
 import OverlayControls from "./OverlayControls"
-import DraggableOverlay from "./DraggableOverlay"
 
 const VideoPlayer = ({ url }) => {
   const videoRef = useRef(null)
@@ -143,7 +142,8 @@ const VideoPlayer = ({ url }) => {
           </div>
         </div>
 
-        <div ref={containerRef} className="relative bg-black aspect-video">
+        <div ref={containerRef} className="relative bg-black aspect-video" 
+        >
           <video ref={videoRef} controls className="w-full h-full" style={{ position: "absolute", top: 0, left: 0 }} />
 
           {error && (
@@ -157,23 +157,7 @@ const VideoPlayer = ({ url }) => {
             onAddOverlay={addOverlay}
             onUpdateOverlay={updateOverlay}
             showTimestamp={showTimestamp}
-            toggleTimestamp={() => setShowTimestamp(!showTimestamp)}
           />
-
-          {/* Dynamic Text Overlays */}
-          {overlays
-            .filter((overlay) => overlay.visible)
-            .map((overlay) => (
-              <DraggableOverlay
-                key={overlay.id}
-                overlay={overlay}
-                onUpdate={updateOverlay}
-                onDelete={deleteOverlay}
-                containerRef={containerRef}
-                isEditing={editingOverlayId === overlay.id}
-                onEditToggle={toggleEditOverlay}
-              />
-            ))}
         </div>
 
         {/* Stream Info and Controls */}

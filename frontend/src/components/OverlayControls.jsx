@@ -7,6 +7,7 @@ const OverlayControls = ({
   onUpdateOverlay,
 }) => {
   const [isCreating, setIsCreating] = useState(false)
+  const [allOverlaysVisible, setAllOverlaysVisible] = useState(true)
   const [editingId, setEditingId] = useState(null)
   const [newOverlay, setNewOverlay] = useState({
     text: "",
@@ -39,11 +40,25 @@ const OverlayControls = ({
     setEditingId(null)
   }
 
+  const toggleAllOverlays = () => {
+    const newVisibility = !allOverlaysVisible
+    setAllOverlaysVisible(newVisibility)
+    overlays.forEach(overlay => {
+      onUpdateOverlay(overlay.id, { ...overlay, visible: newVisibility })
+    })
+  }
+
   return (
     <div className="absolute top-4 left-4 z-30 bg-white/95 backdrop-blur-md p-5 rounded-xl shadow-xl border border-gray-300 space-y-4 w-80 max-h-96 overflow-y-auto">
       <div className="flex items-center justify-between">
         <h3 className="text-gray-800 font-semibold text-lg flex items-center space-x-2">
-          <Eye className="w-5 h-5 text-blue-500 cursor-pointer" />
+          <button onClick={toggleAllOverlays} className="focus:outline-none">
+            {allOverlaysVisible ? (
+              <Eye className="w-5 h-5 text-blue-500 cursor-pointer" />
+            ) : (
+              <EyeOff className="w-5 h-5 text-gray-500 cursor-pointer" />
+            )}
+          </button>
           <span>Overlay Manager</span>
         </h3>
       </div>
@@ -124,7 +139,7 @@ const OverlayControls = ({
                   onCancel={() => setEditingId(null)}
                 />
               ) : (
-                <div className="flex items-center justify-between">
+                <div className="flex cursor-pointer items-center justify-between">
                   <div className="flex-1">
                     <div className="text-sm font-medium text-gray-700 truncate">
                       {overlay.text || "Untitled Overlay"}
@@ -136,11 +151,11 @@ const OverlayControls = ({
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => onUpdateOverlay(overlay.id, { ...overlay, visible: !overlay.visible })}
-                      className={`p-1 rounded ${overlay.visible ? "text-blue-500" : "text-gray-400"}`}
+                      className={`p-1 cursor-pointer rounded ${overlay.visible ? "text-blue-500" : "text-gray-400"}`}
                     >
                       {overlay.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                     </button>
-                    <button onClick={() => setEditingId(overlay.id)} className="p-1 text-gray-500 hover:text-blue-500">
+                    <button onClick={() => setEditingId(overlay.id)} className="p-1 cursor-pointer text-gray-500 hover:text-blue-500">
                       <Type className="w-4 h-4" />
                     </button>
                   </div>

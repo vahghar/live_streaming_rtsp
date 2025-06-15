@@ -4,9 +4,9 @@ from flask_cors import CORS
 import copy
 import os
 from dotenv import load_dotenv
-from .database import get_db, close_db
-from .routes.stream import stream_bp
-from .routes.overlays import overlay_bp
+from database import get_db, close_db
+from routes.stream import stream_bp
+from routes.overlays import overlay_bp
 from flask import send_from_directory
 from flask import jsonify
 
@@ -15,28 +15,14 @@ load_dotenv()
 app = Flask(__name__, static_folder="static")
 CORS(app)
 
-swagger_config = {
-    'title': 'Video Streaming API',
-    'uiversion': 3,
-    'specs_route': '/api-docs/',
-    'headers': [],
-    'specs': [
-        {
-            'endpoint': 'apispec',
-            'route': '/apispec.json'
-        }
-    ],
-    'static_url_path': '/flasgger_static',
-    'swagger_ui': True,
+from flasgger import Swagger
+
+swagger_template = {
     'info': {
         'version': '1.0',
         'title': 'Video Streaming API',
         'description': 'API for managing video streams and overlays'
     },
-    'swagger_ui_bundle_js': '//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js',
-    'swagger_ui_standalone_preset_js': '//unpkg.com/swagger-ui-dist@3/swagger-ui-standalone-preset.js',
-    'jquery_js': '//unpkg.com/jquery@2.2.4/dist/jquery.min.js',
-    'swagger_ui_css': '//unpkg.com/swagger-ui-dist@3/swagger-ui.css',
     'definitions': {
         "Overlay": {
             "type": "object",
@@ -54,14 +40,32 @@ swagger_config = {
     }
 }
 
-Swagger(app, template=swagger_config)
+swagger_config = {
+    'headers': [],
+    'specs': [
+        {
+            'endpoint': 'apispec',
+            'route': '/apispec.json'
+        }
+    ],
+    'static_url_path': '/flasgger_static',
+    'swagger_ui': True,
+    'specs_route': '/api-docs/',
+    'swagger_ui_bundle_js': '//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js',
+    'swagger_ui_standalone_preset_js': '//unpkg.com/swagger-ui-dist@3/swagger-ui-standalone-preset.js',
+    'jquery_js': '//unpkg.com/jquery@2.2.4/dist/jquery.min.js',
+    'swagger_ui_css': '//unpkg.com/swagger-ui-dist@3/swagger-ui.css',
+}
+
+Swagger(app, config=swagger_config, template=swagger_template)
+
 
 app.config['MONGODB_URI'] = os.getenv("DATABASE_URI", "")
 
 app.teardown_appcontext(close_db)
 
-app.register_blueprint(overlay_bp, url_prefix='/api')
-app.register_blueprint(stream_bp, url_prefix='/api')
+app.register_blueprint(overlay_bp)
+app.register_blueprint(stream_bp)
 
 @app.route("/")
 def home():
