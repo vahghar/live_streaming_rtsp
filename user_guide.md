@@ -86,7 +86,7 @@ Your frontend should now be running at `http://localhost:5173`.
 1. Click the **Add Overlay** button.
 2. Enter the following:
    - **Text**: Custom message.
-   - **Font Size** & **Color**: Customize appearance.
+   - **Font Size** & **Color**: Customize appearance. (try x=320, y=100)
 3. Overlay will appear at a random position.
 4. Drag and drop to reposition it.
 5. Click **Save** to finalize the overlay.

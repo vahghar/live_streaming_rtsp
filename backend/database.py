@@ -7,12 +7,6 @@ def get_db():
         client = MongoClient(mongo_uri)
         db_name = mongo_uri.split('/')[-1].split('?')[0] if '/' in mongo_uri else 'livestream_db'
         db = client[db_name]
-        try:
-            db.command("ping")
-            print("Successfully connected to MongoDB.")
-        except Exception as e:
-            print("MongoDB connection failed:", e)
-
         g.db_client = client
         g.db = db
     return g.db

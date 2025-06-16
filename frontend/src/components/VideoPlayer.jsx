@@ -142,7 +142,7 @@ const VideoPlayer = ({ url }) => {
           </div>
         </div>
 
-        <div ref={containerRef} className="relative bg-black aspect-video" 
+        <div ref={containerRef} className="relative bg-black aspect-video"
         >
           <video ref={videoRef} controls className="w-full h-full" style={{ position: "absolute", top: 0, left: 0 }} />
 
@@ -156,11 +156,33 @@ const VideoPlayer = ({ url }) => {
             overlays={overlays}
             onAddOverlay={addOverlay}
             onUpdateOverlay={updateOverlay}
+            onDeleteOverlay={deleteOverlay}
             showTimestamp={showTimestamp}
           />
+
+          {overlays.map(({ id, x, y, text, fontSize, color, backgroundColor, visible }) =>
+            visible && (
+              <div
+                key={id}
+                style={{
+                  position: "absolute",
+                  top: y,
+                  left: x,
+                  fontSize: `${fontSize}px`,
+                  color,
+                  backgroundColor,
+                  padding: "2px 6px",
+                  borderRadius: "4px",
+                  pointerEvents: "none"
+                }}
+              >
+                {text}
+              </div>
+            )
+          )}
         </div>
 
-        {/* Stream Info and Controls */}
+
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
           <div className="flex items-center justify-between text-sm text-gray-600">
             <span>Stream URL: {url}</span>

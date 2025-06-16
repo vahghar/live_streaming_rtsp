@@ -80,11 +80,5 @@ def home():
 def serve_hls(filename):
     return send_from_directory(os.path.join(app.static_folder, 'hls'), filename)
 
-@app.route('/swagger.json')
-def swagger_spec():
-    """Endpoint to serve Swagger JSON configuration"""
-    safe_config = copy.deepcopy(swagger_config)
-    return jsonify(safe_config)
-
 if __name__ == "__main__":
     app.run(debug=True)

@@ -5,7 +5,6 @@ import { Play, Zap, Shield, Globe, Menu, X } from "lucide-react"
 
 function App() {
   const [streamUrl, setStreamUrl] = useState(null)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
@@ -31,32 +30,7 @@ function App() {
                 Get Started
               </button>
             </nav>
-
-            {/* Mobile menu button */}
-            <button className="md:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
           </div>
-
-          {/* Mobile Navigation */}
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t bg-white py-4">
-              <div className="flex flex-col space-y-4">
-                <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">
-                  Features
-                </a>
-                <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">
-                  Pricing
-                </a>
-                <a href="#contact" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">
-                  Contact
-                </a>
-                <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-medium w-fit">
-                  Get Started
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </header>
 

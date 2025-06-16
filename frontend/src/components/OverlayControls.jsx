@@ -1,10 +1,11 @@
-import { useState } from "react"
-import { Plus, Save, Eye, EyeOff, Type, Palette, Clock } from "lucide-react"
+import React, { useState } from "react"
+import { Plus, Eye, EyeOff, Type, Palette, Trash2 } from "lucide-react"
 
 const OverlayControls = ({
   overlays,
   onAddOverlay,
   onUpdateOverlay,
+  onDeleteOverlay,
 }) => {
   const [isCreating, setIsCreating] = useState(false)
   const [allOverlaysVisible, setAllOverlaysVisible] = useState(true)
@@ -14,23 +15,18 @@ const OverlayControls = ({
     fontSize: 16,
     color: "#ffffff",
     backgroundColor: "rgba(0,0,0,0.6)",
+    x: 0,
+    y: 0,
   })
 
   const handleCreateOverlay = () => {
     if (newOverlay.text.trim()) {
       onAddOverlay({
         ...newOverlay,
-        x: Math.random() * 300,
-        y: Math.random() * 200,
         id: Date.now(),
         visible: true,
       })
-      setNewOverlay({
-        text: "",
-        fontSize: 16,
-        color: "#ffffff",
-        backgroundColor: "rgba(0,0,0,0.6)",
-      })
+      setNewOverlay({ text: "", fontSize: 16, color: "#ffffff", backgroundColor: "rgba(0,0,0,0.6)", x: 0, y: 0 })
       setIsCreating(false)
     }
   }
@@ -40,10 +36,15 @@ const OverlayControls = ({
     setEditingId(null)
   }
 
+  const handleDeleteOverlay = (id) => {
+    onDeleteOverlay(id)
+    if (editingId === id) setEditingId(null)
+  }
+
   const toggleAllOverlays = () => {
     const newVisibility = !allOverlaysVisible
     setAllOverlaysVisible(newVisibility)
-    overlays.forEach(overlay => {
+    overlays.forEach((overlay) => {
       onUpdateOverlay(overlay.id, { ...overlay, visible: newVisibility })
     })
   }
@@ -63,7 +64,6 @@ const OverlayControls = ({
         </h3>
       </div>
 
-      {/* Create New Overlay */}
       <div className="border-t pt-4">
         <div className="flex items-center justify-between mb-3">
           <h4 className="font-medium text-gray-700">Text Overlays</h4>
@@ -81,7 +81,9 @@ const OverlayControls = ({
             <input
               type="text"
               value={newOverlay.text}
-              onChange={(e) => setNewOverlay((prev) => ({ ...prev, text: e.target.value }))}
+              onChange={(e) =>
+                setNewOverlay((prev) => ({ ...prev, text: e.target.value }))
+              }
               placeholder="Enter overlay text"
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
@@ -94,10 +96,17 @@ const OverlayControls = ({
                   min="12"
                   max="36"
                   value={newOverlay.fontSize}
-                  onChange={(e) => setNewOverlay((prev) => ({ ...prev, fontSize: Number.parseInt(e.target.value) }))}
+                  onChange={(e) =>
+                    setNewOverlay((prev) => ({
+                      ...prev,
+                      fontSize: parseInt(e.target.value),
+                    }))
+                  }
                   className="w-16"
                 />
-                <span className="text-xs text-gray-500">{newOverlay.fontSize}px</span>
+                <span className="text-xs text-gray-500">
+                  {newOverlay.fontSize}px
+                </span>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -105,8 +114,35 @@ const OverlayControls = ({
                 <input
                   type="color"
                   value={newOverlay.color}
-                  onChange={(e) => setNewOverlay((prev) => ({ ...prev, color: e.target.value }))}
+                  onChange={(e) =>
+                    setNewOverlay((prev) => ({ ...prev, color: e.target.value }))
+                  }
                   className="h-6 w-6 rounded border"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <div className="flex-1">
+                <label className="block text-xs text-gray-600">X</label>
+                <input
+                  type="number"
+                  value={newOverlay.x}
+                  onChange={(e) =>
+                    setNewOverlay((prev) => ({ ...prev, x: parseInt(e.target.value) }))
+                  }
+                  className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-xs text-gray-600">Y</label>
+                <input
+                  type="number"
+                  value={newOverlay.y}
+                  onChange={(e) =>
+                    setNewOverlay((prev) => ({ ...prev, y: parseInt(e.target.value) }))
+                  }
+                  className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
                 />
               </div>
             </div>
@@ -120,7 +156,7 @@ const OverlayControls = ({
               </button>
               <button
                 onClick={() => setIsCreating(false)}
-                className="bg-gray-500 text-white px-3 cursor-pointer py-1 rounded text-sm hover:bg-gray-600"
+                className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
               >
                 Cancel
               </button>
@@ -128,42 +164,46 @@ const OverlayControls = ({
           </div>
         )}
 
-        {/* Overlay List */}
-        <div className="space-y-2 max-h-48 overflow-y-auto">
-          {overlays.map((overlay) => (
-            <div key={overlay.id} className="bg-gray-50 p-3 rounded-lg">
-              {editingId === overlay.id ? (
-                <OverlayEditor
-                  overlay={overlay}
-                  onSave={(updates) => handleUpdateOverlay(overlay.id, updates)}
-                  onCancel={() => setEditingId(null)}
-                />
-              ) : (
-                <div className="flex cursor-pointer items-center justify-between">
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-700 truncate">
-                      {overlay.text || "Untitled Overlay"}
+        {allOverlaysVisible && (
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {overlays.map((overlay) => (
+              <div key={overlay.id} className="bg-gray-50 p-3 rounded-lg">
+                {editingId === overlay.id ? (
+                  <OverlayEditor
+                    overlay={overlay}
+                    onSave={(updates) => handleUpdateOverlay(overlay.id, updates)}
+                    onCancel={() => setEditingId(null)}
+                  />
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-gray-700 truncate">
+                        {overlay.text || "Untitled Overlay"}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Position: ({overlay.x}, {overlay.y})
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-500">
-                      Position: ({Math.round(overlay.x)}, {Math.round(overlay.y)})
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setEditingId(overlay.id)}
+                        className="p-1 cursor-pointer text-gray-500 hover:text-blue-500"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteOverlay(overlay.id)}
+                        className="p-1 cursor-pointer text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => onUpdateOverlay(overlay.id, { ...overlay, visible: !overlay.visible })}
-                      className={`p-1 cursor-pointer rounded ${overlay.visible ? "text-blue-500" : "text-gray-400"}`}
-                    >
-                      {overlay.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                    </button>
-                    <button onClick={() => setEditingId(overlay.id)} className="p-1 cursor-pointer text-gray-500 hover:text-blue-500">
-                      <Type className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -175,6 +215,8 @@ const OverlayEditor = ({ overlay, onSave, onCancel }) => {
     fontSize: overlay.fontSize,
     color: overlay.color,
     backgroundColor: overlay.backgroundColor,
+    x: overlay.x,
+    y: overlay.y,
   })
 
   return (
@@ -182,7 +224,9 @@ const OverlayEditor = ({ overlay, onSave, onCancel }) => {
       <input
         type="text"
         value={editData.text}
-        onChange={(e) => setEditData((prev) => ({ ...prev, text: e.target.value }))}
+        onChange={(e) =>
+          setEditData((prev) => ({ ...prev, text: e.target.value }))
+        }
         className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
       />
 
@@ -194,7 +238,12 @@ const OverlayEditor = ({ overlay, onSave, onCancel }) => {
             min="12"
             max="36"
             value={editData.fontSize}
-            onChange={(e) => setEditData((prev) => ({ ...prev, fontSize: Number.parseInt(e.target.value) }))}
+            onChange={(e) =>
+              setEditData((prev) => ({
+                ...prev,
+                fontSize: parseInt(e.target.value),
+              }))
+            }
             className="w-12"
           />
           <span className="text-xs">{editData.fontSize}px</span>
@@ -203,9 +252,42 @@ const OverlayEditor = ({ overlay, onSave, onCancel }) => {
         <input
           type="color"
           value={editData.color}
-          onChange={(e) => setEditData((prev) => ({ ...prev, color: e.target.value }))}
+          onChange={(e) =>
+            setEditData((prev) => ({ ...prev, color: e.target.value }))
+          }
           className="h-5 w-5 rounded border"
         />
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <div className="flex-1">
+          <label className="block text-xs text-gray-600">X</label>
+          <input
+            type="number"
+            value={editData.x}
+            onChange={(e) =>
+              setEditData((prev) => ({
+                ...prev,
+                x: parseInt(e.target.value),
+              }))
+            }
+            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+          />
+        </div>
+        <div className="flex-1">
+          <label className="block text-xs text-gray-600">Y</label>
+          <input
+            type="number"
+            value={editData.y}
+            onChange={(e) =>
+              setEditData((prev) => ({
+                ...prev,
+                y: parseInt(e.target.value),
+              }))
+            }
+            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+          />
+        </div>
       </div>
 
       <div className="flex space-x-2">
@@ -215,7 +297,10 @@ const OverlayEditor = ({ overlay, onSave, onCancel }) => {
         >
           Save
         </button>
-        <button onClick={onCancel} className="bg-gray-500 text-white cursor-pointer px-2 py-1 rounded text-xs hover:bg-gray-600">
+        <button
+          onClick={onCancel}
+          className="bg-gray-500 text-white cursor-pointer px-2 py-1 rounded text-xs hover:bg-gray-600"
+        >
           Cancel
         </button>
       </div>

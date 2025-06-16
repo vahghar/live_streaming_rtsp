@@ -1,15 +1,13 @@
 from flask import Blueprint, request, jsonify, current_app
 import subprocess, os, uuid, logging
 from flasgger import swag_from
-from datetime import datetime
 
 stream_bp = Blueprint("stream", __name__)
-HLS_DIR = os.path.join("static", "hls")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("HLSConverter")
 
-ffmpeg_path = r"C:\Users\Pushpa_Rawat\Downloads\ffmpeg-7.1.1-essentials_build\ffmpeg-7.1.1-essentials_build\bin\ffmpeg.exe"
+ffmpeg_path = "ffmpeg"
 
 @stream_bp.route("/convert", methods=["POST"])
 @swag_from({
@@ -44,33 +42,51 @@ ffmpeg_path = r"C:\Users\Pushpa_Rawat\Downloads\ffmpeg-7.1.1-essentials_build\ff
                 }
             }
         },
-        400: {
-            "description": "Missing RTSP URL"
-        },
-        500: {
-            "description": "FFmpeg conversion error"
-        }
+        400: { "description": "Missing RTSP URL" },
+        500: { "description": "FFmpeg conversion error" }
     }
 })
 def convert_rtsp_to_hls():
-    data = request.get_json()
+    data = request.get_json() or {}
     rtsp_url = data.get("rtsp_url")
     if not rtsp_url:
         return jsonify({"error": "Missing RTSP URL"}), 400
 
+    # Build an absolute path under <project_root>/static/hls
+    hls_base = os.path.join(current_app.root_path, "static", "hls")
     stream_id = str(uuid.uuid4())
-    stream_path = os.path.join(HLS_DIR, stream_id)
-    os.makedirs(stream_path, exist_ok=True)
+    out_dir = os.path.join(hls_base, stream_id)
+    os.makedirs(out_dir, exist_ok=True)
 
-    hls_file = os.path.join(stream_path, "index.m3u8")
+    # Define your playlist and segment filenames
+    playlist        = os.path.join(out_dir, "index.m3u8")
+    segment_pattern = os.path.join(out_dir, "seg_%03d.ts")
+
+    # FFmpeg command: force TCP, name segments explicitly
     command = [
-        ffmpeg_path, "-i", rtsp_url,
-        "-c:v", "libx264", "-f", "hls",
-        "-hls_time", "2", "-hls_list_size", "3",
+        ffmpeg_path,
+        "-rtsp_transport", "tcp",
+        "-i", rtsp_url,
+        "-c:v", "libx264",
+        "-c:a", "aac",
+        "-f", "hls",
+        "-hls_time", "2",
+        "-hls_list_size", "3",
         "-hls_flags", "delete_segments",
-        hls_file
+        "-hls_segment_filename", segment_pattern,
+        playlist,
     ]
 
-    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print(f"FFmpeg started with PID: {proc.pid}")
-    return jsonify({"stream_url": f"/static/hls/{stream_id}/index.m3u8"})
+    # Spawn FFmpeg in the background (so this request returns immediately)
+    proc = subprocess.Popen(
+        command,
+        cwd=current_app.root_path,  # ensures 'static/hls/...' paths resolve
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    logger.info("Started FFmpeg PID=%d, writing to %s", proc.pid, playlist)
+
+    # Return the URL your front‑end player should hit
+    return jsonify({
+        "stream_url": f"/static/hls/{stream_id}/index.m3u8"
+    }), 200
