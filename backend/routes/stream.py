@@ -1,9 +1,13 @@
-from flask import Blueprint, request, jsonify
-import subprocess, os, uuid
+from flask import Blueprint, request, jsonify, current_app
+import subprocess, os, uuid, logging
 from flasgger import swag_from
+from datetime import datetime
 
 stream_bp = Blueprint("stream", __name__)
 HLS_DIR = os.path.join("static", "hls")
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("HLSConverter")
 
 ffmpeg_path = r"C:\Users\Pushpa_Rawat\Downloads\ffmpeg-7.1.1-essentials_build\ffmpeg-7.1.1-essentials_build\bin\ffmpeg.exe"
 
