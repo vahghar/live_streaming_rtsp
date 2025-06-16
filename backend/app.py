@@ -1,14 +1,12 @@
 from flask import Flask
 from flasgger import Swagger
 from flask_cors import CORS
-import copy
 import os
 from dotenv import load_dotenv
-from database import get_db, close_db
-from routes.stream import stream_bp
-from routes.overlays import overlay_bp
+from .database import get_db, close_db
+from .routes.stream import stream_bp
+from .routes.overlays import overlay_bp
 from flask import send_from_directory
-from flask import jsonify
 
 load_dotenv()
 

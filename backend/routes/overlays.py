@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from bson import ObjectId
-from database import get_db
+from ..database import get_db
 from flasgger import swag_from
 
 overlay_bp = Blueprint("overlay", __name__)
