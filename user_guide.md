@@ -1,53 +1,101 @@
-🚀 Getting Started
-1. Clone the Repository
+# 📺 RTSP Live Streaming App – User Guide
 
+This guide will help you set up and use the RTSP live streaming app with overlay support.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+
+```bash
 git clone https://github.com/vahghar/live_streaming_rtsp.git
 cd live_streaming_rtsp
+```
 
-🔧 Backend Setup (Flask)
-2. Create and Activate Virtual Environment
+---
 
+## 🔧 Backend Setup (Flask)
+
+### 2. Create and Activate Virtual Environment
+
+```bash
 cd backend
-pyhton -m venv venv
-source venv/bin/activate or venv\Scripts\activate
+python -m venv venv
+```
+
+Activate the environment:
+
+- **Linux/macOS**:
+  ```bash
+  source venv/bin/activate
+  ```
+
+- **Windows**:
+  ```bash
+  venv\Scripts\activate
+  ```
+
+### 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-⚠️ Note: Ensure ffmpeg is installed and added to your system PATH.
-You can check this by running: ffmpeg --version
+> ⚠️ Ensure **ffmpeg** is installed and added to your system PATH.  
+> Check it by running:
+> ```bash
+> ffmpeg --version
+> ```
 
-📘 API Documentation
+---
+
+## 📘 API Documentation
+
 Once your backend is running, visit:
+```
 http://localhost:5000/api-docs
+```
 
-💻 Frontend Setup (React + Vite)
-cd frontend
+---
+
+## 💻 Frontend Setup (React + Vite)
+
+```bash
+cd ../frontend
 npm install
 npm run dev
+```
 
-🌐 Using the Application
+Your frontend should now be running at `http://localhost:5173`.
 
-🔗 Input RTSP Stream
-Open the frontend in your browser.
+---
 
-Paste your RTSP URL (e.g., from an IP camera or a test stream).
+## 🌐 Using the Application
 
-Click Start Live Stream.
+### 🔗 Input RTSP Stream
 
-The backend uses FFmpeg to convert the RTSP stream to HLS.
+1. Open the frontend in your browser.
+2. Paste your **RTSP URL** (e.g., from an IP camera or test source).
+3. Click **Start Live Stream**.
+4. The backend will convert the stream to **HLS** using **FFmpeg**.
+5. The video will appear shortly on the page.
 
-The live video stream will appear shortly on the page.
+### 🖊️ Add Overlay (Text / Logo)
 
-🖊️ Add Overlay (Text / Logo)
-Click the Add Overlay button.
+1. Click the **Add Overlay** button.
+2. Enter the following:
+   - **Text**: Custom message.
+   - **Font Size** & **Color**: Customize appearance.
+3. Overlay will appear at a random position.
+4. Drag and drop to reposition it.
+5. Click **Save** to finalize the overlay.
 
-Enter the following:
+---
 
-Text: Your custom overlay text.
+## ✅ Requirements
 
-Font Size & Color: Customize appearance.
-
-The overlay will appear at a random position on the video.
-
-Drag and position the overlay anywhere on the video stream.
-
-Click Save to finalize the overlay.
+- Python 3.x
+- Node.js & npm
+- FFmpeg installed and accessible from terminal
+- Modern web browser
