@@ -15,6 +15,10 @@ pip install -r requirements.txt
 ⚠️ Note: Ensure ffmpeg is installed and added to your system PATH.
 You can check this by running: ffmpeg --version
 
+📘 API Documentation
+Once your backend is running, visit:
+http://localhost:5000/api-docs
+
 💻 Frontend Setup (React + Vite)
 cd frontend
 npm install
