@@ -23,7 +23,7 @@ function App() {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="http://localhost:5000/api-docs" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">
+              <a href="https://rtsp-api-docs.onrender.com/api-docs/" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">
                 API Docs
               </a>
               <button className="bg-gradient-to-r cursor-pointer from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-200">

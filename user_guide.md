@@ -62,6 +62,8 @@ python -m backend.app
 Once your backend is running, visit:
 ```
 http://localhost:5000/api-docs
+or 
+https://rtsp-api-docs.onrender.com/api-docs/ (this link might take a while to load)
 ```
 
 ---
